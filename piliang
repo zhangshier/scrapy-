@@ -1,0 +1,105 @@
+import wx  
+import re
+import os
+import sys
+import codecs
+
+class DirDialog(wx.Frame):  
+    """"""  
+    global name
+    global userText1
+    #----------------------------------------------------------------------
+    def __init__(self):  
+        """Constructor"""  
+        wx.Frame.__init__(self,None,-1,u"小BUG v.01",pos=(600,600),size=(600,600))  
+
+        panel=wx.Panel(self)
+        b = wx.Button(panel,label="请选择文件夹",pos=(10,10),size=(100,60))
+        self.Bind(wx.EVT_BUTTON, self.OnButton, b)
+
+      #  userLabel=wx.StaticText(panel,-1,"User Name:")
+        self.userText=wx.TextCtrl(panel,-1,"文件名称",
+                             pos=(10,70),
+                             size=(175,-1))
+
+        self.userText1=wx.TextCtrl(panel,-1,"需要替换的文件名称",
+                             pos=(300,70),
+                             size=(175,-1))
+        self.biaotiText=wx.TextCtrl(panel,-1,"标题1",
+                             pos=(10,170),
+                             size=(175,-1))
+        self.biaotiText1=wx.TextCtrl(panel,-1,"替换的标题1",
+                             pos=(300,170),
+                             size=(175,-1))
+        self.biaotiText2=wx.TextCtrl(panel,-1,"标题2",
+                             pos=(10,270),
+                             size=(175,-1))
+        self.biaotiText22=wx.TextCtrl(panel,-1,"替换的标题2",
+                             pos=(300,270),
+                             size=(175,-1))
+        self.biaotiText3=wx.TextCtrl(panel,-1,"标题3",
+                             pos=(10,370),
+                             size=(175,-1))
+        self.biaotiText33=wx.TextCtrl(panel,-1,"替换的标题3",
+                             pos=(300,370),
+                             size=(175,-1))
+
+        b = wx.Button(panel,label="运行",pos=(200,470),size=(100,60))
+        self.Bind(wx.EVT_BUTTON, self.TwoButton, b)
+    #----------------------------------------------------------------------  
+    def OnButton(self, event):  
+        """"""  
+        dlg = wx.DirDialog(self,u"选择文件夹",style=wx.DD_DEFAULT_STYLE)
+        if dlg.ShowModal() == wx.ID_OK:
+                self.names = dlg.GetPath()#文件夹路径
+              
+        dlg.Destroy()
+    def TwoButton(self,event):
+        path = self.names
+        filelist=os.listdir(path)
+        for files in filelist:#遍历所有文件
+            Olddir=os.path.join(path,files);#原来的文件路径
+            if os.path.isdir(Olddir):#如果是文件夹则跳过
+                continue;
+            filename=os.path.splitext(files)[0];#文件名
+            filetype=os.path.splitext(files)[1];#文件扩展名
+            file_data = ""
+            txt = codecs.open(path+"\\"+filename+filetype,'rb','gbk').readlines()  #打开文件，读入每一行
+            file_data = ""
+            with open(path+"\\"+filename+filetype, "r",encoding="gbk") as f:  #打开文件
+                for line in f:
+                    da=self.biaotiText.GetValue() #获取到
+                    da1=self.biaotiText1.GetValue()
+                    biaoti2 =self.biaotiText2.GetValue()
+                    print(biaoti2)
+                    biaoti3 = self.biaotiText3.GetValue()
+                    biaoti33 =self.biaotiText33.GetValue()
+                    biaoti22 = self.biaotiText22.GetValue()
+                    if(da!='标题1' and biaoti2=="标题2" and biaoti3=="标题3"):
+                        line = line.replace(da,da1)
+                    elif(da!='标题1' and biaoti2!="标题2" and biaoti3 =="标题3"):
+                        line = line.replace(da,da1).replace(biaoti2,biaoti22)
+                        print(line)
+                    elif(da!='标题1' and biaoti2!="标题2" and biaoti3!="标题3"):
+                        line = line.replace(da,da1).replace(biaoti2,biaoti22).replace(biaoti3,biaoti33)
+
+                    file_data += line
+
+            with open(path+"\\"+filename+filetype,'w',encoding="gbk") as f:
+                f.write(file_data)
+
+            link=self.userText.GetValue() #这里是Unicode编码
+
+            newpat =self.userText1.GetValue() #这里是Unicode编码
+            news = re.sub(link,newpat,filename) #sub 是正则表达是里面的替换   把filename 里面的link 替换成newpat
+            nn = news.replace("]","").replace("[","")
+            Newdir=os.path.join(path,nn+filetype);#新的文件路径
+
+            os.rename(Olddir,Newdir);#重命名
+
+ 
+if __name__ == '__main__':  
+    frame = wx.PySimpleApp()  
+    app = DirDialog()  
+    app.Show()  
+    frame.MainLoop()  
